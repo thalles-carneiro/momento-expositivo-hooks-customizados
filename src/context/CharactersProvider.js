@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import { CharactersContext } from './';
-import fetchCharacters from '../services/fetchCharacters';
+import useFetch from '../hooks/useFetch';
+
+const CHARACTERS_ENDPOINT = `https://rickandmortyapi.com/api/character`;
 
 const CharactersProvider = ({ children }) => {
-  const [characters, setCharacters] = useState([]);
-
-  useEffect(() => {
-    (async () => {
-      setCharacters(await fetchCharacters());
-    })();
-  }, []);
+  const { error, isLoading, data } = useFetch(CHARACTERS_ENDPOINT);
 
   const charactersContext = {
-    characters,
+    characters: data ? data.results : [],
+    isLoading,
+    error,
   };
 
   return (

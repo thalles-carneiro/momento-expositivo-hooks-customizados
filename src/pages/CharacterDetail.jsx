@@ -1,13 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { CharCard } from '../components';
-import { CharactersContext } from '../context';
-
-const fetchCharacter = async (id) => {
-  const response = await fetch(`https://rickandmortyapi.com/api/character/${id}`);
-  const data = await response.json();
-  return data;
-}
+import useFetch from '../hooks/useFetch';
 
 const fetchEpisodes = async (episodesURLS) => {
   const episodesInPromises = episodesURLS.map(async (episodeURL) => {
@@ -20,18 +13,20 @@ const fetchEpisodes = async (episodesURLS) => {
 }
 
 const CharacterDetail = ({ match: { params: { id } }}) => {
-  const [character, setCharacter] = useState({});
+  const CHARACTER_BY_ID_ENDPOINT = `https://rickandmortyapi.com/api/character/${id}`;
+  const { data: character } = useFetch(CHARACTER_BY_ID_ENDPOINT);
+
   const [episodes, setEpisodes] = useState([]);
+
   useEffect(() => {
-    fetchCharacter(id)
-      .then((character) => {
-        setCharacter(character);
-        fetchEpisodes(character.episode)
-        .then((ep) =>setEpisodes(ep));
-      });
-  }, [id])
+    if (character) {
+      fetchEpisodes(character.episode)
+        .then((ep) => setEpisodes(ep));
+    }
+  }, [character]);
+
   const {name, status, image, species, origin} = character;
-  console.log(episodes);
+
   return (
     <div style={ { display: "flex", flexDirection: "column", alignItems: "center"} }>
       <h2>Name: {name}</h2>
